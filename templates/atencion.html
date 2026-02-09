@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header flex justify-between items-center">
+    <div>
+        <h1 class="page-title">Atención al Paciente</h1>
+        <p class="page-subtitle">Complete la atención y dispensación de medicamentos</p>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline">
+        <i data-feather="arrow-left"></i>
+        Volver a Cola
+    </a>
+</div>
+
+<!-- Patient Card -->
+<div class="patient-card mb-6">
+    <div class="patient-header">
+        <div class="flex items-center">
+            <div class="patient-avatar-lg">
+                {{ paciente.nombre_completo|slice:":2"|upper }}
+            </div>
+            <div class="patient-header-info">
+                <h2 class="patient-header-name">{{ paciente.nombre_completo }}</h2>
+                <p class="patient-header-ci">CI: {{ paciente.ci }} | {{ paciente.edad }} años | {{
+                    paciente.get_sexo_display }}</p>
+            </div>
+        </div>
+        <div>
+            <span class="priority-badge {{ triaje.nivel_prioridad }}" style="font-size: 14px; padding: 8px 16px;">
+                <span class="priority-dot {{ triaje.nivel_prioridad }}"></span>
+                Prioridad {{ triaje.get_nivel_prioridad_display }}
+            </span>
+        </div>
+    </div>
+
+    <div class="patient-body">
+        <h3 class="card-title mb-4">
+            <i data-feather="clipboard" style="display: inline; vertical-align: middle;"></i>
+            Información del Triaje
+        </h3>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Especialidad</div>
+                <div class="info-value">{{ triaje.get_especialidad_display }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Médico</div>
+                <div class="info-value">{{ triaje.medico }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Enfermería</div>
+                <div class="info-value">{{ triaje.enfermeria }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Fecha/Hora Consulta</div>
+                <div class="info-value">{{ triaje.fecha_hora_consulta|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+
+        <h3 class="card-title mb-4 mt-6">
+            <i data-feather="activity" style="display: inline; vertical-align: middle;"></i>
+            Signos Vitales
+        </h3>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Talla</div>
+                <div class="info-value">{{ triaje.talla }} cm</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Peso</div>
+                <div class="info-value">{{ triaje.peso }} kg</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Temperatura</div>
+                <div class="info-value">{{ triaje.temperatura }} °C</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Presión Arterial</div>
+                <div class="info-value">{{ triaje.presion_arterial }} mmHg</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Pulsación</div>
+                <div class="info-value">{{ triaje.pulsacion }} ppm</div>
+            </div>
+        </div>
+
+        {% if triaje.sintomatologia %}
+        <h3 class="card-title mb-4 mt-6">
+            <i data-feather="file-text" style="display: inline; vertical-align: middle;"></i>
+            Diagnóstico
+        </h3>
+
+        <div class="info-grid">
+            {% if triaje.sintomatologia %}
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-label">Sintomatología</div>
+                <div class="info-value">{{ triaje.sintomatologia }}</div>
+            </div>
+            {% endif %}
+            {% if triaje.tratamiento %}
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-label">Tratamiento</div>
+                <div class="info-value">{{ triaje.tratamiento }}</div>
+            </div>
+            {% endif %}
+            {% if triaje.estudios_complementarios %}
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-label">Estudios Complementarios</div>
+                <div class="info-value">{{ triaje.estudios_complementarios }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Attention Form -->
+<div class="card">
+    <h2 class="card-title mb-4">
+        <i data-feather="edit-3" style="display: inline; vertical-align: middle;"></i>
+        Registro de Atención
+    </h2>
+
+    <form method="post" id="atencion-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label" for="id_medicamentos_dispensados">
+                <i data-feather="package"
+                    style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i>
+                Medicamentos Dispensados
+            </label>
+            {{ form.medicamentos_dispensados }}
+            <div class="form-help">Ingrese los medicamentos con nombre, dosis y cantidad. Ejemplo: Paracetamol 500mg -
+                10 tabletas</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="id_observaciones">
+                <i data-feather="message-square"
+                    style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i>
+                Observaciones Adicionales
+            </label>
+            {{ form.observaciones }}
+        </div>
+
+        <div class="flex justify-between mt-6">
+            <a href="{% url 'dashboard' %}" class="btn btn-outline">
+                <i data-feather="x"></i>
+                Cancelar
+            </a>
+
+            <button type="button" class="btn btn-success btn-lg" onclick="confirmarFinalizacion()">
+                <i data-feather="check-circle"></i>
+                Finalizar Atención
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirm-modal"
+    style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="card" style="max-width: 400px; margin: 20px;">
+        <h3 class="card-title">Confirmar Finalización</h3>
+        <p class="text-muted mt-4">¿Está seguro de que desea finalizar la atención de <strong
+                id="patient-name"></strong>?</p>
+        <p class="text-muted">Esta acción removerá al paciente de la cola de espera.</p>
+
+        <div class="flex justify-between mt-6">
+            <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+            <button type="button" class="btn btn-success" onclick="enviarFormulario()">
+                <i data-feather="check"></i>
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function confirmarFinalizacion() {
+        // Get patient name from the page header
+        var patientName = document.querySelector('.patient-header-name').textContent;
+        document.getElementById('patient-name').textContent = patientName;
+        document.getElementById('confirm-modal').style.display = 'flex';
+    }
+
+    function cerrarModal() {
+        document.getElementById('confirm-modal').style.display = 'none';
+    }
+
+    function enviarFormulario() {
+        document.getElementById('atencion-form').submit();
+    }
+
+    // Close modal on outside click
+    document.getElementById('confirm-modal').addEventListener('click', function (e) {
+        if (e.target === this) {
+            cerrarModal();
+        }
+    });
+</script>
+{% endblock %}

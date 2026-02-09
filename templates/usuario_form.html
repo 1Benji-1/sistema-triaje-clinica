@@ -1,0 +1,83 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ page_title }}</h1>
+    <p class="page-subtitle">{% if action == 'crear' %}Crear nueva cuenta de usuario{% else %}Modificar datos del usuario{% endif %}</p>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <form method="post">
+        {% csrf_token %}
+
+        {% if action == 'crear' %}
+        <div class="form-group">
+            <label class="form-label" for="username">
+                Nombre de Usuario <span class="required">*</span>
+            </label>
+            <input type="text" name="username" id="username" class="form-input"
+                placeholder="Ingrese el nombre de usuario" required>
+            <div class="form-help">Este sera el nombre para iniciar sesion</div>
+        </div>
+        {% else %}
+        <div class="form-group">
+            <label class="form-label">Nombre de Usuario</label>
+            <input type="text" class="form-input" value="{{ usuario.username }}" disabled>
+            <div class="form-help">El nombre de usuario no se puede modificar</div>
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label class="form-label" for="nombre_completo">
+                Nombre Completo <span class="required">*</span>
+            </label>
+            <input type="text" name="nombre_completo" id="nombre_completo" class="form-input"
+                placeholder="Ingrese el nombre completo"
+                value="{% if usuario %}{{ usuario.nombre_completo }}{% endif %}" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password">
+                Contrasena {% if action == 'crear' %}<span class="required">*</span>{% endif %}
+            </label>
+            <input type="password" name="password" id="password" class="form-input"
+                placeholder="{% if action == 'crear' %}Ingrese la contrasena{% else %}Dejar vacio para mantener la actual{% endif %}"
+                {% if action == 'crear' %}required{% endif %}>
+            {% if action == 'editar' %}
+            <div class="form-help">Solo complete si desea cambiar la contrasena</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="rol">Rol</label>
+            <select name="rol" id="rol" class="form-select">
+                <option value="enfermeria" {% if usuario.rol == 'enfermeria' %}selected{% endif %}>Enfermeria</option>
+                <option value="doctor" {% if usuario.rol == 'doctor' %}selected{% endif %}>Doctor</option>
+                <option value="farmacia" {% if usuario.rol == 'farmacia' %}selected{% endif %}>Farmacia</option>
+                <option value="admin" {% if usuario.rol == 'admin' %}selected{% endif %}>Administrador</option>
+            </select>
+        </div>
+
+        {% if action == 'editar' %}
+        <div class="form-group">
+            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" name="activo" {% if usuario.activo %}checked{% endif %}>
+                Usuario Activo
+            </label>
+            <div class="form-help">Los usuarios inactivos no pueden iniciar sesion</div>
+        </div>
+        {% endif %}
+
+        <div class="flex justify-between mt-6">
+            <a href="{% url 'gestion_usuarios' %}" class="btn btn-outline">
+                <i data-feather="arrow-left"></i>
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i data-feather="save"></i>
+                {% if action == 'crear' %}Crear Usuario{% else %}Guardar Cambios{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

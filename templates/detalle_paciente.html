@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header flex justify-between items-center">
+    <div>
+        <h1 class="page-title">Detalle del Paciente</h1>
+        <p class="page-subtitle">Información completa del registro de triaje</p>
+    </div>
+    <a href="{% url 'historial' %}" class="btn btn-outline">
+        <i data-feather="arrow-left"></i>
+        Volver al Historial
+    </a>
+</div>
+
+<!-- Patient Card -->
+<div class="patient-card mb-6">
+    <div class="patient-header">
+        <div class="flex items-center">
+            <div class="patient-avatar-lg">
+                {{ paciente.nombre_completo|slice:":2"|upper }}
+            </div>
+            <div class="patient-header-info">
+                <h2 class="patient-header-name">{{ paciente.nombre_completo }}</h2>
+                <p class="patient-header-ci">CI: {{ paciente.ci }} | {{ paciente.edad }} años</p>
+            </div>
+        </div>
+        <div>
+            <span class="priority-badge {{ triaje.nivel_prioridad }}" style="font-size: 14px; padding: 8px 16px;">
+                <span class="priority-dot {{ triaje.nivel_prioridad }}"></span>
+                Prioridad {{ triaje.get_nivel_prioridad_display }}
+            </span>
+        </div>
+    </div>
+
+    <div class="patient-body">
+        <!-- General Data Section -->
+        <h3 class="card-title mb-4">
+            <i data-feather="user" style="display: inline; vertical-align: middle;"></i>
+            Datos Generales
+        </h3>
+
+        <div class="info-grid mb-6">
+            <div class="info-item">
+                <div class="info-label">Nombre Completo</div>
+                <div class="info-value">{{ paciente.nombre_completo }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Cédula de Identidad</div>
+                <div class="info-value">{{ paciente.ci }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Fecha de Nacimiento</div>
+                <div class="info-value">{{ paciente.fecha_nacimiento|date:"d/m/Y" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Edad</div>
+                <div class="info-value">{{ paciente.edad }} años</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Sexo</div>
+                <div class="info-value">{{ paciente.get_sexo_display }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Tipo de Paciente</div>
+                <div class="info-value">{{ paciente.get_tipo_paciente_display }}</div>
+            </div>
+        </div>
+
+        <!-- Antecedentes Section -->
+        <h3 class="card-title mb-4">
+            <i data-feather="file-text" style="display: inline; vertical-align: middle;"></i>
+            Antecedentes
+        </h3>
+
+        <div class="info-grid mb-6">
+            <div class="info-item">
+                <div class="info-label">Especialidad</div>
+                <div class="info-value">{{ triaje.get_especialidad_display }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Médico Asignado</div>
+                <div class="info-value">{{ triaje.medico }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Enfermería</div>
+                <div class="info-value">{{ triaje.enfermeria }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Fecha/Hora Consulta</div>
+                <div class="info-value">{{ triaje.fecha_hora_consulta|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+
+        <!-- Vital Signs Section -->
+        <h3 class="card-title mb-4">
+            <i data-feather="activity" style="display: inline; vertical-align: middle;"></i>
+            Signos Vitales (Triaje)
+        </h3>
+
+        <div class="info-grid mb-6">
+            <div class="info-item">
+                <div class="info-label">Talla</div>
+                <div class="info-value">{{ triaje.talla }} cm</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Peso</div>
+                <div class="info-value">{{ triaje.peso }} kg</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Temperatura</div>
+                <div class="info-value">{{ triaje.temperatura }} °C</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Presión Arterial</div>
+                <div class="info-value">{{ triaje.presion_arterial }} mmHg</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Pulsación</div>
+                <div class="info-value">{{ triaje.pulsacion }} ppm</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Nivel de Prioridad</div>
+                <div class="info-value">
+                    <span class="priority-badge {{ triaje.nivel_prioridad }}">
+                        {{ triaje.get_nivel_prioridad_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagnosis Section -->
+        {% if triaje.sintomatologia or triaje.tratamiento or triaje.estudios_complementarios %}
+        <h3 class="card-title mb-4">
+            <i data-feather="clipboard" style="display: inline; vertical-align: middle;"></i>
+            Diagnóstico e Indicaciones
+        </h3>
+
+        <div class="info-grid mb-6">
+            {% if triaje.sintomatologia %}
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-label">Sintomatología</div>
+                <div class="info-value">{{ triaje.sintomatologia }}</div>
+            </div>
+            {% endif %}
+            {% if triaje.tratamiento %}
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-label">Tratamiento</div>
+                <div class="info-value">{{ triaje.tratamiento }}</div>
+            </div>
+            {% endif %}
+            {% if triaje.estudios_complementarios %}
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-label">Estudios Complementarios</div>
+                <div class="info-value">{{ triaje.estudios_complementarios }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Attention Section -->
+        {% if atencion %}
+        <h3 class="card-title mb-4">
+            <i data-feather="check-circle" style="display: inline; vertical-align: middle;"></i>
+            Atención Realizada
+        </h3>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Fecha Inicio</div>
+                <div class="info-value">{{ atencion.fecha_inicio|date:"d/m/Y H:i" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Fecha Fin</div>
+                <div class="info-value">{{ atencion.fecha_fin|date:"d/m/Y H:i"|default:"En curso" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Duración</div>
+                <div class="info-value">{{ atencion.duracion_atencion }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Atendido por</div>
+                <div class="info-value">{{ atencion.usuario.nombre_completo|default:atencion.usuario.username }}</div>
+            </div>
+            {% if atencion.medicamentos_dispensados %}
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-label">Medicamentos Dispensados</div>
+                <div class="info-value">{{ atencion.medicamentos_dispensados }}</div>
+            </div>
+            {% endif %}
+            {% if atencion.observaciones %}
+            <div class="info-item" style="grid-column: span 2;">
+                <div class="info-label">Observaciones</div>
+                <div class="info-value">{{ atencion.observaciones }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Patient History -->
+{% if historial.count > 1 %}
+<div class="card">
+    <h2 class="card-title mb-4">
+        <i data-feather="clock" style="display: inline; vertical-align: middle;"></i>
+        Historial de Consultas ({{ historial.count }})
+    </h2>
+
+    <table class="queue-table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Especialidad</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in historial %}
+            <tr>
+                <td>{{ t.fecha_hora_consulta|date:"d/m/Y H:i" }}</td>
+                <td>{{ t.get_especialidad_display }}</td>
+                <td>
+                    <span class="priority-badge {{ t.nivel_prioridad }}">
+                        {{ t.get_nivel_prioridad_display }}
+                    </span>
+                </td>
+                <td>
+                    {% if t.estado == 'atendido' %}
+                    <span class="text-success">Atendido</span>
+                    {% else %}
+                    <span class="text-warning">{{ t.get_estado_display }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if t.id != triaje.id %}
+                    <a href="{% url 'detalle_paciente' t.id %}" class="btn btn-outline btn-sm">
+                        <i data-feather="eye"></i>
+                    </a>
+                    {% else %}
+                    <span class="text-muted">Actual</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

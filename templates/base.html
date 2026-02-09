@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title|default:"Sistema de Triaje Clínico" }}{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    {% if user.is_authenticated %}
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <div class="nav-logo">
+                <img src="{% static 'images/logo.png' %}" alt="Logo" style="height: 32px; width: auto;">
+            </div>
+            <h1 class="nav-title">Triaje<span>Clínico</span></h1>
+        </div>
+
+        <ul class="nav-menu">
+            <li>
+                <a href="{% url 'dashboard' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i data-feather="home"></i>
+                    Principal
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'registrar_paciente' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'registrar_paciente' %}active{% endif %}">
+                    <i data-feather="user-plus"></i>
+                    Registrar
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'historial' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'historial' or request.resolver_match.url_name == 'detalle_paciente' %}active{% endif %}">
+                    <i data-feather="users"></i>
+                    Pacientes
+                </a>
+            </li>
+            {% if user.rol == 'admin' %}
+            <li>
+                <a href="{% url 'reportes' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'reportes' %}active{% endif %}">
+                    <i data-feather="bar-chart-2"></i>
+                    Reportes
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'gestion_usuarios' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'gestion_usuarios' or request.resolver_match.url_name == 'crear_usuario' or request.resolver_match.url_name == 'editar_usuario' %}active{% endif %}">
+                    <i data-feather="settings"></i>
+                    Usuarios
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+
+        <div class="nav-user">
+            <div class="user-info">
+                <div class="user-name">{{ user.nombre_completo|default:user.username }}</div>
+                <div class="user-role">{{ user.get_rol_display }}</div>
+            </div>
+            <div class="user-avatar">
+                {{ user.nombre_completo|default:user.username|slice:":2"|upper }}
+            </div>
+            <a href="{% url 'logout' %}" class="btn btn-outline btn-sm" title="Cerrar sesión">
+                <i data-feather="log-out"></i>
+            </a>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages" id="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+            <span>{{ message }}</span>
+            <button class="alert-close" onclick="this.parentElement.remove()">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+
+        // Auto-hide messages after 5 seconds
+        setTimeout(() => {
+            const messages = document.getElementById('messages');
+            if (messages) {
+                messages.style.opacity = '0';
+                setTimeout(() => messages.remove(), 300);
+            }
+        }, 5000);
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

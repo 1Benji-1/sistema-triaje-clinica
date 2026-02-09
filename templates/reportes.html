@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Reportes y Estadísticas</h1>
+    <p class="page-subtitle">Análisis de datos y métricas del sistema</p>
+</div>
+
+<!-- Date Filter -->
+<div class="card mb-6">
+    <form method="get" class="flex gap-4" style="flex-wrap: wrap; align-items: flex-end;">
+        <div class="form-group" style="min-width: 150px; margin-bottom: 0;">
+            <label class="form-label">Fecha Desde</label>
+            <input type="date" name="fecha_desde" class="form-input" value="{{ fecha_desde|date:'Y-m-d' }}">
+        </div>
+
+        <div class="form-group" style="min-width: 150px; margin-bottom: 0;">
+            <label class="form-label">Fecha Hasta</label>
+            <input type="date" name="fecha_hasta" class="form-input" value="{{ fecha_hasta|date:'Y-m-d' }}">
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i data-feather="bar-chart-2"></i>
+            Generar Reporte
+        </button>
+    </form>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i data-feather="user-check"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.total_atendidos }}</div>
+            <div class="stat-label">Pacientes Atendidos</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i data-feather="users"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.total_registrados }}</div>
+            <div class="stat-label">Total Registrados</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Grid -->
+<div class="charts-grid">
+    <!-- Priority Distribution Chart -->
+    <div class="chart-container">
+        <h3 class="chart-title">
+            <i data-feather="pie-chart" style="display: inline; vertical-align: middle;"></i>
+            Distribución por Prioridad
+        </h3>
+        <canvas id="prioridadChart"></canvas>
+    </div>
+
+    <!-- Daily Trend Chart -->
+    <div class="chart-container">
+        <h3 class="chart-title">
+            <i data-feather="trending-up" style="display: inline; vertical-align: middle;"></i>
+            Tendencia Diaria
+        </h3>
+        <canvas id="tendenciaChart"></canvas>
+    </div>
+</div>
+
+<!-- Specialty Distribution -->
+{% if especialidad_stats %}
+<div class="card mb-6">
+    <h3 class="card-title mb-4">
+        <i data-feather="grid" style="display: inline; vertical-align: middle;"></i>
+        Pacientes por Especialidad
+    </h3>
+
+    <table class="queue-table">
+        <thead>
+            <tr>
+                <th>Especialidad</th>
+                <th>Total Pacientes</th>
+                <th>Porcentaje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in especialidad_stats %}
+            <tr>
+                <td>{{ item.especialidad|title }}</td>
+                <td>{{ item.total }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="flex: 1; background: var(--color-gray-200); border-radius: 4px; height: 8px;">
+                            <div
+                                style="width: 33%; background: var(--color-primary); height: 100%; border-radius: 4px;">
+                            </div>
+                        </div>
+                        <span class="text-muted" style="font-size: 12px;">{{ item.total }}</span>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- User Performance Stats -->
+{% if usuarios_stats %}
+<div class="card mb-6">
+    <h3 class="card-title mb-4">
+        <i data-feather="users" style="display: inline; vertical-align: middle;"></i>
+        Rendimiento por Usuario
+    </h3>
+
+    <table class="queue-table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Pacientes Atendidos</th>
+                <th>Tiempo Promedio</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in usuarios_stats %}
+            <tr>
+                <td>
+                    <div class="patient-name">{{ item.usuario__nombre_completo|default:"Usuario Eliminado" }}</div>
+                </td>
+                <td>
+                    <span class="priority-badge baja">{{ item.total_atendidos }}</span>
+                </td>
+                <td>
+                    <span class="time-badge">
+                        <i data-feather="clock" style="width: 14px; height: 14px;"></i>
+                        {{ item.promedio_minutos }} min
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" class="text-center text-muted" style="padding: 2rem;">
+                    No hay datos de atención en este período
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- Priority Distribution Table -->
+{% if prioridad_stats %}
+<div class="card">
+    <h3 class="card-title mb-4">
+        <i data-feather="alert-circle" style="display: inline; vertical-align: middle;"></i>
+        Detalle por Prioridad
+    </h3>
+
+    <div class="info-grid">
+        {% for item in prioridad_stats %}
+        <div class="info-item"
+            style="border-left: 4px solid {% if item.nivel_prioridad == 'alta' %}var(--color-priority-alta){% elif item.nivel_prioridad == 'media' %}var(--color-priority-media){% else %}var(--color-priority-baja){% endif %};">
+            <div class="info-label">Prioridad {{ item.nivel_prioridad|title }}</div>
+            <div class="info-value">{{ item.total }} pacientes</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Fetch chart data from API
+    fetch('{% url "api_reportes" %}?fecha_desde={{ fecha_desde|date:"Y-m-d" }}&fecha_hasta={{ fecha_hasta|date:"Y-m-d" }}')
+        .then(response => response.json())
+        .then(data => {
+            // Priority Pie Chart
+            const prioridadCtx = document.getElementById('prioridadChart').getContext('2d');
+            new Chart(prioridadCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.prioridad.labels,
+                    datasets: [{
+                        data: data.prioridad.data,
+                        backgroundColor: data.prioridad.colors,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+
+            // Trend Line Chart
+            const tendenciaCtx = document.getElementById('tendenciaChart').getContext('2d');
+            new Chart(tendenciaCtx, {
+                type: 'line',
+                data: {
+                    labels: data.tendencia.labels,
+                    datasets: [{
+                        label: 'Pacientes',
+                        data: data.tendencia.data,
+                        borderColor: '#4F46E5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#4F46E5',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(err => console.log('Error loading charts:', err));
+</script>
+{% endblock %}

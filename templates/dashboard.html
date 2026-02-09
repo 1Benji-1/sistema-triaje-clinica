@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Panel Principal</h1>
+    <p class="page-subtitle">Cola de triaje y estadísticas en tiempo real</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <i data-feather="users"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.total_espera }}</div>
+            <div class="stat-label">Pacientes en Espera</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon alta">
+            <i data-feather="alert-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.prioridad_alta }}</div>
+            <div class="stat-label">Prioridad Alta</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon media">
+            <i data-feather="alert-triangle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.prioridad_media }}</div>
+            <div class="stat-label">Prioridad Media</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon baja">
+            <i data-feather="check-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.prioridad_baja }}</div>
+            <div class="stat-label">Prioridad Baja</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <i data-feather="user-check"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">{{ stats.atendidos_hoy }}</div>
+            <div class="stat-label">Atendidos Hoy</div>
+        </div>
+    </div>
+</div>
+
+<!-- En Atención Currently -->
+{% if en_atencion %}
+<div class="card mb-6">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i data-feather="activity" style="display: inline; vertical-align: middle;"></i>
+            En Atención Actualmente
+        </h2>
+    </div>
+    <div class="info-grid">
+        {% for triaje in en_atencion %}
+        <div class="info-item"
+            style="background: rgba(79, 70, 229, 0.1); border-left: 4px solid var(--color-primary); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div class="info-label">Paciente</div>
+                <div class="info-value">{{ triaje.paciente.nombre_completo }}</div>
+                <div class="text-muted" style="font-size: 12px; margin-top: 4px;">
+                    {{ triaje.get_especialidad_display }}
+                </div>
+            </div>
+            <a href="{% url 'atencion' triaje.id %}" class="btn btn-primary btn-sm">
+                <i data-feather="play"></i>
+                Continuar
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Patient Queue -->
+<div class="queue-container">
+    <div class="queue-header">
+        <h2 class="queue-title">
+            <i data-feather="list" style="display: inline; vertical-align: middle;"></i>
+            Cola de Triaje
+        </h2>
+        <span class="queue-count">{{ stats.total_espera }} pacientes</span>
+    </div>
+
+    {% if triajes %}
+    <table class="queue-table">
+        <thead>
+            <tr>
+                <th>Paciente</th>
+                <th>Prioridad</th>
+                <th>Especialidad</th>
+                <th>Hora Ingreso</th>
+                <th>Tiempo Espera</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="queue-body">
+            {% for triaje in triajes %}
+            <tr data-id="{{ triaje.id }}">
+                <td>
+                    <div class="patient-name">{{ triaje.paciente.nombre_completo }}</div>
+                    <div class="patient-ci">CI: {{ triaje.paciente.ci }}</div>
+                </td>
+                <td>
+                    <span class="priority-badge {{ triaje.nivel_prioridad }}">
+                        <span class="priority-dot {{ triaje.nivel_prioridad }}"></span>
+                        {{ triaje.get_nivel_prioridad_display }}
+                    </span>
+                </td>
+                <td>{{ triaje.get_especialidad_display }}</td>
+                <td>
+                    <div class="time-badge">
+                        <i data-feather="clock" style="width: 14px; height: 14px;"></i>
+                        {{ triaje.fecha_hora_consulta|time:"H:i" }}
+                    </div>
+                </td>
+                <td>
+                    <span class="time-badge {% if triaje.nivel_prioridad == 'alta' %}text-error{% endif %}">
+                        {{ triaje.tiempo_espera }}
+                    </span>
+                </td>
+                <td>
+                    <div class="flex gap-2">
+                        <a href="{% url 'atencion' triaje.id %}" class="btn btn-primary btn-sm">
+                            <i data-feather="play"></i>
+                            Atender
+                        </a>
+                        <form action="{% url 'quitar_de_cola' triaje.id %}" method="post" style="display: inline;"
+                            onsubmit="return confirm('¿Está seguro de quitar a {{ triaje.paciente.nombre_completo }} de la cola?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline btn-sm" title="Quitar de cola">
+                                <i data-feather="x"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="queue-empty">
+        <div class="queue-empty-icon">
+            <i data-feather="inbox"></i>
+        </div>
+        <h3>No hay pacientes en espera</h3>
+        <p class="text-muted">Los pacientes registrados aparecerán aquí según su nivel de prioridad</p>
+        <a href="{% url 'registrar_paciente' %}" class="btn btn-primary mt-4">
+            <i data-feather="user-plus"></i>
+            Registrar Paciente
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Real-time queue update every 30 seconds
+    function updateQueue() {
+        fetch('{% url "api_queue_update" %}')
+            .then(response => response.json())
+            .then(data => {
+                const countBadge = document.querySelector('.queue-count');
+                if (countBadge) {
+                    countBadge.textContent = data.total + ' pacientes';
+                }
+            })
+            .catch(err => console.log('Error updating queue:', err));
+    }
+
+    // Update every 30 seconds
+    setInterval(updateQueue, 30000);
+</script>
+{% endblock %}

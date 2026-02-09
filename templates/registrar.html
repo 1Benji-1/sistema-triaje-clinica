@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Registrar Paciente</h1>
+    <p class="page-subtitle">Complete los datos del paciente para el registro de triaje</p>
+</div>
+
+<div class="card">
+    <!-- Steps Indicator -->
+    <div class="steps-indicator">
+        <div class="step-item {% if step >= 1 %}{% if step == 1 %}active{% else %}completed{% endif %}{% endif %}">
+            <span class="step-number">{% if step > 1 %}✓{% else %}1{% endif %}</span>
+            <span class="step-label">Datos Generales</span>
+        </div>
+        <div class="step-connector {% if step > 1 %}completed{% endif %}"></div>
+
+        <div class="step-item {% if step >= 2 %}{% if step == 2 %}active{% else %}completed{% endif %}{% endif %}">
+            <span class="step-number">{% if step > 2 %}✓{% else %}2{% endif %}</span>
+            <span class="step-label">Antecedentes</span>
+        </div>
+        <div class="step-connector {% if step > 2 %}completed{% endif %}"></div>
+
+        <div class="step-item {% if step >= 3 %}{% if step == 3 %}active{% else %}completed{% endif %}{% endif %}">
+            <span class="step-number">{% if step > 3 %}✓{% else %}3{% endif %}</span>
+            <span class="step-label">Triaje</span>
+        </div>
+        <div class="step-connector {% if step > 3 %}completed{% endif %}"></div>
+
+        <div class="step-item {% if step == 4 %}active{% endif %}">
+            <span class="step-number">4</span>
+            <span class="step-label">Diagnóstico</span>
+        </div>
+    </div>
+
+    <h2 class="card-title mb-4">
+        <i data-feather="{% if step == 1 %}user{% elif step == 2 %}file-text{% elif step == 3 %}activity{% else %}clipboard{% endif %}"
+            style="display: inline; vertical-align: middle;"></i>
+        Paso {{ step }}: {{ step_title }}
+    </h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if step == 1 %}
+        <!-- Step 1: General Data -->
+        <div class="info-grid">
+            <div class="form-group">
+                <label class="form-label" for="id_nombre_completo">
+                    Nombre Completo <span class="required">*</span>
+                </label>
+                {{ form.nombre_completo }}
+                {% if form.nombre_completo.errors %}
+                <div class="form-error">{{ form.nombre_completo.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_ci">
+                    Cédula de Identidad <span class="required">*</span>
+                </label>
+                {{ form.ci }}
+                {% if form.ci.errors %}
+                <div class="form-error">{{ form.ci.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_sexo">
+                    Sexo <span class="required">*</span>
+                </label>
+                {{ form.sexo }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_fecha_nacimiento">
+                    Fecha de Nacimiento <span class="required">*</span>
+                </label>
+                {{ form.fecha_nacimiento }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_tipo_paciente">
+                    Tipo de Paciente <span class="required">*</span>
+                </label>
+                {{ form.tipo_paciente }}
+            </div>
+        </div>
+
+        {% elif step == 2 %}
+        <!-- Step 2: Medical History -->
+        <div class="info-grid">
+            <div class="form-group">
+                <label class="form-label" for="id_especialidad">
+                    Especialidad <span class="required">*</span>
+                </label>
+                {{ form.especialidad }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_medico">
+                    Médico Asignado <span class="required">*</span>
+                </label>
+                {{ form.medico }}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_enfermeria">
+                    Personal de Enfermería <span class="required">*</span>
+                </label>
+                {{ form.enfermeria }}
+            </div>
+        </div>
+
+        {% elif step == 3 %}
+        <!-- Step 3: Vital Signs -->
+        <div class="info-grid">
+            <div class="form-group">
+                <label class="form-label" for="id_talla">
+                    Talla (cm) <span class="required">*</span>
+                </label>
+                {{ form.talla }}
+                <div class="form-help">Rango válido: 40-250 cm</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_peso">
+                    Peso (kg) <span class="required">*</span>
+                </label>
+                {{ form.peso }}
+                <div class="form-help">Rango válido: 1-300 kg</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_temperatura">
+                    Temperatura (°C) <span class="required">*</span>
+                </label>
+                {{ form.temperatura }}
+                <div class="form-help">Rango válido: 32-43°C</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_presion_arterial">
+                    Presión Arterial <span class="required">*</span>
+                </label>
+                {{ form.presion_arterial }}
+                <div class="form-help">Formato: Sistólica/Diastólica (ej: 120/80)</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_pulsacion">
+                    Pulsación (ppm) <span class="required">*</span>
+                </label>
+                {{ form.pulsacion }}
+                <div class="form-help">Rango válido: 40-200 ppm</div>
+            </div>
+        </div>
+
+        <div class="form-group mt-6">
+            <label class="form-label">
+                Nivel de Prioridad <span class="required">*</span>
+            </label>
+            <div class="priority-radio-group">
+                <div class="priority-radio-item">
+                    <input type="radio" name="nivel_prioridad" id="prioridad_alta" value="alta">
+                    <label for="prioridad_alta" class="priority-radio-label alta">
+                        <i data-feather="alert-circle"></i>
+                        Alta (Urgente)
+                    </label>
+                </div>
+                <div class="priority-radio-item">
+                    <input type="radio" name="nivel_prioridad" id="prioridad_media" value="media">
+                    <label for="prioridad_media" class="priority-radio-label media">
+                        <i data-feather="alert-triangle"></i>
+                        Media
+                    </label>
+                </div>
+                <div class="priority-radio-item">
+                    <input type="radio" name="nivel_prioridad" id="prioridad_baja" value="baja" checked>
+                    <label for="prioridad_baja" class="priority-radio-label baja">
+                        <i data-feather="check-circle"></i>
+                        Baja
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        {% elif step == 4 %}
+        <!-- Step 4: Diagnosis -->
+        <div class="form-group">
+            <label class="form-label" for="id_sintomatologia">
+                Sintomatología
+            </label>
+            {{ form.sintomatologia }}
+            <div class="form-help">Describa los síntomas que presenta el paciente</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="id_tratamiento">
+                Tratamiento e Indicaciones
+            </label>
+            {{ form.tratamiento }}
+            <div class="form-help">Indicaciones médicas y prescripciones</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="id_estudios_complementarios">
+                Estudios Complementarios
+            </label>
+            {{ form.estudios_complementarios }}
+            <div class="form-help">Solicitud de análisis, imágenes, etc.</div>
+        </div>
+        {% endif %}
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between mt-6">
+            <div>
+                {% if step > 1 %}
+                <a href="?step={{ step|add:'-1' }}" class="btn btn-outline">
+                    <i data-feather="arrow-left"></i>
+                    Anterior
+                </a>
+                {% else %}
+                <a href="{% url 'dashboard' %}" class="btn btn-outline">
+                    <i data-feather="x"></i>
+                    Cancelar
+                </a>
+                {% endif %}
+            </div>
+
+            <div>
+                {% if step < 4 %} <button type="submit" class="btn btn-primary">
+                    Siguiente
+                    <i data-feather="arrow-right"></i>
+                    </button>
+                    {% else %}
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i data-feather="check"></i>
+                        Registrar Paciente
+                    </button>
+                    {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

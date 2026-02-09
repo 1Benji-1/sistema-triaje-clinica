@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Confirmar Eliminación</h1>
+    <p class="page-subtitle">Esta acción no se puede deshacer</p>
+</div>
+
+<div class="card" style="max-width: 500px;">
+    <div class="text-center mb-6">
+        <div style="font-size: 48px; color: var(--color-error); margin-bottom: 1rem;">
+            <i data-feather="alert-triangle"></i>
+        </div>
+        <h3>¿Está seguro de eliminar este registro?</h3>
+    </div>
+
+    <div class="info-grid mb-6">
+        <div class="info-item">
+            <div class="info-label">Paciente</div>
+            <div class="info-value">{{ paciente.nombre_completo }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">CI</div>
+            <div class="info-value">{{ paciente.ci }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Fecha de Consulta</div>
+            <div class="info-value">{{ triaje.fecha_hora_consulta|date:"d/m/Y H:i" }}</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Especialidad</div>
+            <div class="info-value">{{ triaje.get_especialidad_display }}</div>
+        </div>
+    </div>
+
+    <div class="text-muted text-center mb-6" style="font-size: 14px;">
+        <strong>Nota:</strong> Si este es el único triaje del paciente, también se eliminará el registro del paciente.
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="flex justify-between">
+            <a href="{% url 'historial' %}" class="btn btn-outline">
+                <i data-feather="arrow-left"></i>
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-danger">
+                <i data-feather="trash-2"></i>
+                Eliminar Registro
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
