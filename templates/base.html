@@ -35,7 +35,12 @@
             <h1 class="nav-title">Triaje<span>Clínico</span></h1>
         </div>
 
-        <ul class="nav-menu">
+        <button class="mobile-menu-btn" id="mobileMenuBtn"
+            onclick="document.getElementById('navMenu').classList.toggle('active')">
+            <i data-feather="menu"></i>
+        </button>
+
+        <ul class="nav-menu" id="navMenu">
             <li>
                 <a href="{% url 'dashboard' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
