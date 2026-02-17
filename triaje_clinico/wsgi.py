@@ -14,3 +14,6 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'triaje_clinico.settings')
 
 application = get_wsgi_application()
+
+# Vercel expects the handler to be named 'app'
+app = application
