@@ -20,3 +20,9 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Build artifacts
+staticfiles_build/
+
+# Agent
+.agent/
