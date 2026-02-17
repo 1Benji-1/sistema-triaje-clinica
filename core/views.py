@@ -229,6 +229,7 @@ def registrar_paciente_view(request):
                         especialidad=session_data['antecedentes']['especialidad'],
                         medico=session_data['antecedentes']['medico'],
                         enfermeria=session_data['antecedentes']['enfermeria'],
+                        tipo_servicio=session_data['antecedentes']['tipo_servicio'],
                         talla=session_data['signos_vitales']['talla'],
                         peso=session_data['signos_vitales']['peso'],
                         temperatura=session_data['signos_vitales']['temperatura'],

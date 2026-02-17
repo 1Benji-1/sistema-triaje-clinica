@@ -86,6 +86,10 @@
                 <div class="info-value">{{ triaje.enfermeria }}</div>
             </div>
             <div class="info-item">
+                <div class="info-label">Tipo de Servicio</div>
+                <div class="info-value">{{ triaje.get_tipo_servicio_display }}</div>
+            </div>
+            <div class="info-item">
                 <div class="info-label">Fecha/Hora Consulta</div>
                 <div class="info-value">{{ triaje.fecha_hora_consulta|date:"d/m/Y H:i" }}</div>
             </div>

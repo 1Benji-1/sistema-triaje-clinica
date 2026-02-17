@@ -104,6 +104,16 @@ class Triaje(models.Model):
         ('emergencias', 'Emergencias'),
     ]
     
+    TIPO_SERVICIO = [
+        ('consulta_externa', 'Consulta Externa'),
+        ('laboratorio', 'Laboratorio'),
+        ('internacion', 'Internación'),
+        ('cirugia', 'Cirugía'),
+        ('emergencia', 'Emergencia'),
+        ('farmacia', 'Farmacia'),
+        ('otro', 'Otro'),
+    ]
+    
     # Relationships
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='triajes')
     
@@ -112,6 +122,7 @@ class Triaje(models.Model):
     especialidad = models.CharField(max_length=50, choices=ESPECIALIDADES)
     medico = models.CharField(max_length=100)
     enfermeria = models.CharField(max_length=100)
+    tipo_servicio = models.CharField(max_length=20, choices=TIPO_SERVICIO, default='consulta_externa', verbose_name='Tipo de Servicio')
     
     # Vital signs
     talla = models.DecimalField(max_digits=5, decimal_places=2, help_text='Talla en cm')

@@ -5,15 +5,19 @@ Sistema de Triaje Clínico - Configuración
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
+
 
 # Quick-start development settings - unsuitable for production
-SECRET_KEY = 'django-insecure-^px*x2uyf=6kq5)f!ui@*6^q72gxu71c$9u7w&yf&54n58gx_+'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-^px*x2uyf=6kq5)f!ui@*6^q72gxu71c$9u7w&yf&54n58gx_+')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
@@ -59,11 +63,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'triaje_clinico.wsgi.application'
 
 
-# Database
+# Database - Supabase PostgreSQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'postgres'),
+        'USER': os.getenv('DB_USER', ''),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
 }
 

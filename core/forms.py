@@ -80,6 +80,11 @@ class TriajeAntecedentesForm(forms.Form):
             'placeholder': 'Nombre del personal de enfermería'
         })
     )
+    tipo_servicio = forms.ChoiceField(
+        choices=Triaje.TIPO_SERVICIO,
+        label='Tipo de Servicio Recibido *',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
 
 
 class TriajeSignosVitalesForm(forms.Form):
